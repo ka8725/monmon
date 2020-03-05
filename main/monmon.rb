@@ -1,15 +1,12 @@
 require 'csv'
 
-balance = Hash.new
+balance = Hash.new(0)
 
-CSV.foreach("input.csv", headers: true) do |row|
-  puts("#{row['Type']}: #{row['Name']}:  #{row['Currency']}\t - #{row['Amount']}  #{row['Currency']}")
-  if balance.include?(row['Currency'])
-    balance[row['Currency']] += row['Amount'].to_i
-  else
-    balance[row['Currency']] = row['Amount'].to_i
-  end
+CSV.foreach('input.csv', headers: true, header_converters: :symbol) do |row|
+  puts("#{row[:type]}: #{row[:name]}:  #{row[:currency]}\t - #{row[:amount]}  #{row[:currency]}")
+  balance[row[:currency].to_sym] += row[:amount].to_i
 end
+
 puts('-----------------------------------------')
 balance.each do |key, val|
   puts "#{key} \t #{val}"
