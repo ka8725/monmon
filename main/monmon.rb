@@ -1,7 +1,7 @@
 require 'csv'
 
 balance = Hash.new(0)
-not_sup = Hash.new(0)
+not_supported = Hash.new(0)
 CURRENCY = %w[BYN USD RUR EUR]
 
 CSV.foreach('input.csv', headers: true, header_converters: :symbol) do |row|
@@ -9,7 +9,7 @@ CSV.foreach('input.csv', headers: true, header_converters: :symbol) do |row|
   if CURRENCY.include?(row[:currency])
     balance[row[:currency].to_sym] += row[:amount].to_i
   else
-    not_sup[row[:currency].to_sym] += row[:amount].to_i
+    not_supported[row[:currency].to_sym] += row[:amount].to_i
   end
 end
 
@@ -17,6 +17,6 @@ puts('-----------------------------------------')
 balance.each do |key, val|
   puts "#{key} \t #{val}"
 end
-not_sup.each do |key, val|
+not_supported.each do |key, val|
   puts "#{key} \t Not supported currency!"
 end
