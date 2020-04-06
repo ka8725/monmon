@@ -11,8 +11,7 @@ end.parse!
 balance = Hash.new(0)
 not_supported = Hash.new(0)
 SUPPORTED_CURRENCIES = %w[BYN USD RUR EUR].freeze
-
-rates = {USD: 2.5846, RUR: 0.0336, EUR: 2.7943}
+rates = {BYN: 1, USD: 2.5846, RUR: 0.0336, EUR: 2.7943}
 main_currency = :BYN
 total = 0
 
@@ -26,11 +25,7 @@ CSV.foreach(options[:file], headers: true, header_converters: :symbol) do |row|
 end
 
 balance.each do |key, val|
-  if key==main_currency
-    total += val
-  else
-    total += val * rates[key]
-  end
+  total += val * rates[key]
 end
 
 puts('-----------------------------------------')
