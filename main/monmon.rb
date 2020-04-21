@@ -3,8 +3,13 @@ require 'optparse'
 
 options = {file: "input.csv"}
 OptionParser.new do |opts|
-  opts.on("-f name", "--file=name") do |v|
+  opts.banner = "Usage:   monmon.rb [options]"
+  opts.on("-f name", "--file=name", "Print this to load other file") do |v|
     options[:file] = v
+  end
+  opts.on("-h", "--help", "Prints this help") do
+    puts opts
+    exit
   end
 end.parse!
 
