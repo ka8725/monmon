@@ -1,5 +1,30 @@
 require 'csv'
 require 'optparse'
+require 'minitest/autorun'
+
+def fill_balance(balance, not_supported, row)
+  if SUPPORTED_CURRENCIES.include?(row[:currency])
+    balance[row[:currency].to_sym] += row[:amount].to_i
+  else
+    not_supported[row[:currency].to_sym] += row[:amount].to_i
+  end
+end
+
+def totality(balance, total, rates, main_currency)
+  balance.each do |key, val|
+    total += val * rates[key][main_currency]
+  end
+  return total
+end
+
+#TEST
+#------------------------------------
+class TetsMonmon < MiniTest::Test
+  def test_totality
+    assert_equal 8540, totality(balance, total, rates, main_currency)
+  end
+end
+#------------------------------------
 
 options = {file: "input.csv"}
 OptionParser.new do |opts|
@@ -26,17 +51,8 @@ total = 0
 
 CSV.foreach(options[:file], headers: true, header_converters: :symbol) do |row|
   puts("#{row[:type]}: #{row[:name]}:  #{row[:currency]}\t - #{row[:amount]}  #{row[:currency]}")
-  if SUPPORTED_CURRENCIES.include?(row[:currency])
-    balance[row[:currency].to_sym] += row[:amount].to_i
-  else
-    not_supported[row[:currency].to_sym] += row[:amount].to_i
-  end
+  fill_balance(balance, not_supported, row)
 end
-
-balance.each do |key, val|
-  total += val * rates[key][main_currency]
-end
-
 puts('-----------------------------------------')
 balance.each do |key, val|
   puts "#{key} \t #{val}"
@@ -46,4 +62,4 @@ not_supported.each do |key, val|
 end
 
 puts('-----------------------------------------')
-puts("Total in main currency: #{total.round} #{main_currency}")
+puts("Total in main currency: #{totality(balance, total, rates, main_currency).round} #{main_currency}")
