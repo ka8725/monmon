@@ -1,22 +1,7 @@
 require 'csv'
 require 'optparse'
-require 'minitest/autorun'
-
-def fill_balance(balance, not_supported, row)
-  if SUPPORTED_CURRENCIES.include?(row[:currency])
-    balance[row[:currency].to_sym] += row[:amount].to_i
-  else
-    not_supported[row[:currency].to_sym] += row[:amount].to_i
-  end
-end
-
-def totality(balance, total, rates, main_currency)
-  balance.each do |key, val|
-    total += val * rates[key][main_currency]
-  end
-  return total
-end
-
+#require 'minitest/autorun'
+=begin
 #TEST
 #------------------------------------
 class TetsMonmon < MiniTest::Test
@@ -25,6 +10,17 @@ class TetsMonmon < MiniTest::Test
   end
 end
 #------------------------------------
+=end
+def process(table, balance,not_supported)
+    table.each do |t|
+
+    if SUPPORTED_CURRENCIES.include?(t[:currency])
+        balance[t[:currency].to_sym] += t[:amount].to_i
+      else
+        not_supported[t[:currency].to_sym] += t[:amount].to_i
+      end
+    end
+end
 
 options = {file: "input.csv"}
 OptionParser.new do |opts|
@@ -49,10 +45,16 @@ rates = { BYN: { USD: 0.4081, RUR: 30.1132, EUR: 0.3727 , BYN: 1 },
 main_currency = :BYN
 total = 0
 
+table = Array.new
+i = 0
 CSV.foreach(options[:file], headers: true, header_converters: :symbol) do |row|
-  puts("#{row[:type]}: #{row[:name]}:  #{row[:currency]}\t - #{row[:amount]}  #{row[:currency]}")
-  fill_balance(balance, not_supported, row)
+    puts("#{row[:type]}: #{row[:name]}:  #{row[:currency]}\t - #{row[:amount]}  #{row[:currency]}")
+    table[i] = {type: row[:type], name: row[:name], currency: row[:currency], amount: row[:amount]}
+    i = i+1
 end
+
+process(table, balance,not_supported)
+
 puts('-----------------------------------------')
 balance.each do |key, val|
   puts "#{key} \t #{val}"
@@ -61,5 +63,9 @@ not_supported.each do |key, val|
   puts "#{key} \t Not supported currency!"
 end
 
+balance.each do |key, val|
+  total += val * rates[key][main_currency]
+end
+
 puts('-----------------------------------------')
-puts("Total in main currency: #{totality(balance, total, rates, main_currency).round} #{main_currency}")
+puts("Total in main currency: #{total} #{main_currency}")
