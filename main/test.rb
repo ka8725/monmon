@@ -1,4 +1,6 @@
-#TEST
+require 'minitest/autorun'
+load 'monmon.rb'
+
 class TetsMonmon < MiniTest::Test
   def test_process
     table = [{:type=>"CC", :name=>"Alfa-bank CC", :currency=>"BYN", :amount=>"500"},

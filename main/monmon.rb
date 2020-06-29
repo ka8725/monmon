@@ -1,7 +1,5 @@
 require 'csv'
 require 'optparse'
-require 'minitest/autorun'
-load 'test.rb'
 
 # FUNCTION --------------------------
 def process(table, balance,not_supported,rates, main_currency)
