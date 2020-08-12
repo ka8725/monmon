@@ -21,5 +21,5 @@ CSV.foreach(options[:file], headers: true, header_converters: :symbol) do |row|
   i = i+1
 end
 
-result = process(table, main_currency)
-print(result, main_currency)
+result = process(table)
+print(result)
