@@ -1,4 +1,13 @@
 require 'monmon'
+require 'pg'
+
+def convert_keys(table)
+  result = Array.new
+  table.each do |row|
+     result << row.transform_keys {|key| key.to_sym rescue key}
+  end
+  result
+end
 
 options = {file: 'input.csv'}
 OptionParser.new do |opts|
@@ -12,14 +21,8 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-main_currency = :BYN
-table = Array.new
-i = 0
-CSV.foreach(options[:file], headers: true, header_converters: :symbol) do |row|
-  puts("#{row[:type]}: #{row[:name]}:  #{row[:currency]}\t - #{row[:amount]}  #{row[:currency]}")
-  table[i] = {type: row[:type], name: row[:name], currency: row[:currency], amount: row[:amount]}
-  i = i+1
-end
+conn = PG::Connection.open( dbname: 'monmon', user: 'postgres')
+table = convert_keys(conn.exec("SELECT * from accounts"))
 
 result = process(table)
 print(result)

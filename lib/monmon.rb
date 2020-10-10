@@ -42,6 +42,6 @@ def print(result)
     end
   end
   puts('-----------------------------------------')
-  puts("Total in main currency: #{result[:total]} #{RATES["base"]}")
+  puts("Total in main currency: #{result[:total].round(2)} #{RATES["base"]}")
   puts('-----------------------------------------')
 end
