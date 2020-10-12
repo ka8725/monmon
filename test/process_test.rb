@@ -12,11 +12,11 @@ describe '#process' do
       {type: 'Bank account', name: 'Paritet Bank', currency: 'BYN', amount: '2000'},
       {type: 'Deposit account', name: 'Priorbank', currency: 'BYN', amount: '4000'}
     ]
-    #@main_currency = :BYN
+    @main_currency = :BYN
   end
 
   it 'calculates total in main currency' do
-    result = process(@table)
+    result = process(@table, @main_currency)
     assert_equal 6500, result[:currencies][:BYN]
   end
 end
