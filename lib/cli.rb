@@ -10,7 +10,7 @@ table = []
 
 options = {file: 'input.csv'}
 OptionParser.new do |opts|
-  opts.banner = 'Monmon can calculate the sum of all income and a certain currency.'+"\n"+'Usage:   monmon.rb [options]:'
+  opts.banner = 'Monmon can calculate the sum of all income and a certain currency. Usage:   monmon.rb [options]:'
   opts.on('-f name', '--file=name', 'Input file in CSV format') do |v|
     options[:file] = v
   end
