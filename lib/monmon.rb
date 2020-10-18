@@ -9,7 +9,7 @@ response = Net::HTTP.get(uri)
 RATES = JSON.parse(response)
 SUPPORTED_CURRENCIES = %w[BYN USD RUB EUR].freeze
 
-def process(table)
+def process(table, main_currency)
   result = Hash.new(0)
   result[:currencies] = Hash.new(0)
   not_supported = Hash.new(0)
@@ -42,6 +42,6 @@ def print(result)
     end
   end
   puts('-----------------------------------------')
-  puts("Total in main currency: #{result[:total]} #{RATES["base"]}")
+  puts("Total in main currency: #{result[:total].round(2)} #{RATES["base"]}")
   puts('-----------------------------------------')
 end
