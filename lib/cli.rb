@@ -6,9 +6,8 @@ def convert_keys(table)
 end
 
 table =[]
-main_currency = :BYN
-
 options = {file: 'input.csv'}
+config = Configuration.instance
 OptionParser.new do |opts|
   opts.banner = 'Monmon can calculate the sum of all income and a certain currency. Usage:   monmon.rb [options]:'
   opts.on('-f name', '--file=name', 'Input file in CSV format') do |v|
@@ -37,7 +36,14 @@ OptionParser.new do |opts|
         abort "Parameter usage error!\n Use \"./bin/cli -a DB\" to run with database\n Use \"./bin/cli -a CSV\" to run with CSV file"
       end
   end
+  opts.on('-m name', '--main_currency=name', 'Change main currency') do |v|
+    if SUPPORTED_CURRENCIES.include?(v)
+      config.change_main_currency(v.to_sym)
+    else
+      abort "Currency not supported. Choose supportes currency #{SUPPORTED_CURRENCIES.inspect}"
+    end
+  end
 end.parse!
 
-result = process(table, main_currency)
+result = process(table, config.main_currency)
 print(result)
