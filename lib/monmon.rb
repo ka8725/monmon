@@ -2,6 +2,7 @@ require 'csv'
 require 'optparse'
 require 'net/http'
 require 'json'
+require 'configuration'
 
 def rates
   @rates ||= begin
@@ -11,28 +12,6 @@ def rates
     response = Net::HTTP.get(uri)
     JSON.parse(response)
   end
-end
-
-class Configuration
-  attr_accessor:main_currency
-
-  def initialize
-    @main_currency = :BYN
-  end
-
-  def self.instance
-    @@instance
-  end
-
-  def main_currency
-    @main_currency
-  end
-  def change_main_currency(currency)
-    @main_currency = currency
-  end
-
-  @@instance = Configuration.new
-  private_class_method :new
 end
 
 config = Configuration.instance
