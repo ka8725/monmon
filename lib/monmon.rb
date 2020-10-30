@@ -2,11 +2,18 @@ require 'csv'
 require 'optparse'
 require 'net/http'
 require 'json'
+require 'configuration'
 
-url = "https://api.exchangerate.host/latest?base=BYN"
-uri = URI(url)
-response = Net::HTTP.get(uri)
-RATES = JSON.parse(response)
+def rates
+  @rates ||= begin
+    config = Configuration.instance
+    url = "https://api.exchangerate.host/latest?base=#{config.main_currency}"
+    uri = URI(url)
+    response = Net::HTTP.get(uri)
+    JSON.parse(response)
+  end
+end
+
 SUPPORTED_CURRENCIES = %w[BYN USD RUB EUR].freeze
 
 def process(table, main_currency)
@@ -26,7 +33,7 @@ def process(table, main_currency)
   end
 
   balance.each do |key, val|
-    total += val / RATES["rates"].fetch(key.to_s)
+    total += val / rates["rates"].fetch(key.to_s)
   end
   result[:total] = total
   result[:not_supported] = not_supported
@@ -42,6 +49,6 @@ def print(result)
     end
   end
   puts('-----------------------------------------')
-  puts("Total in main currency: #{result[:total].round(2)} #{RATES["base"]}")
+  puts("Total in main currency: #{result[:total].round(2)} #{rates["base"]}")
   puts('-----------------------------------------')
 end
