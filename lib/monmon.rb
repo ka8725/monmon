@@ -14,7 +14,6 @@ def rates
   end
 end
 
-config = Configuration.instance
 SUPPORTED_CURRENCIES = %w[BYN USD RUB EUR].freeze
 
 def process(table, main_currency)

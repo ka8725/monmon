@@ -38,7 +38,7 @@ OptionParser.new do |opts|
   end
   opts.on('-m name', '--main_currency=name', 'Change main currency') do |v|
     if SUPPORTED_CURRENCIES.include?(v)
-      config.change_main_currency(v.to_sym)
+      config.main_currency = v.to_sym
     else
       abort "Currency not supported. Choose supportes currency #{SUPPORTED_CURRENCIES.inspect}"
     end
