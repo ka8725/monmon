@@ -8,4 +8,3 @@ insert into accounts(Type,Name,Currency,Amount)
   ('Cash','At home','UAH',1000),
   ('Bank account','Paritet Bank','BYN',2000),
   ('Deposit account','Priorbank','BYN',4000);
-select * from accounts;
