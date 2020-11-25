@@ -30,4 +30,4 @@ For examples:
 
 ## Create DataBase
 ---
-Run this command in your terminal to create database: `psql commands.sql`
+Run this command in your terminal to create database: `psql -f commands.sql`
