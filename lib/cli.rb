@@ -20,7 +20,7 @@ OptionParser.new do |opts|
   opts.on('-a name', '--adapter=name', 'Run with datadase or CSV') do |v|
     case v
       when 'DB'
-          conn = PG::Connection.open( dbname: 'monmon', user: 'postgres')
+          conn = PG::Connection.open(ENV["DATABASE_URL"])
           table = convert_keys(conn.exec('SELECT * from accounts'))
       when 'CSV'
           if File.exist?(options[:file])
