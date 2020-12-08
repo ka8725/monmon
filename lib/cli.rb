@@ -11,7 +11,11 @@ config = Configuration.instance
 OptionParser.new do |opts|
   opts.banner = 'Monmon can calculate the sum of all income and a certain currency. Usage:   monmon.rb [options]:'
   opts.on('-f name', '--file=name', 'Input file in CSV format') do |v|
-    options[:file] = v
+    if File.exist?(v)
+      options[:file] = v
+    else
+      abort "File is missing: #{v}"
+    end
   end
   opts.on('-h', '--help', 'Prints this help') do
     puts opts
