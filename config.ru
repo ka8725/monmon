@@ -8,25 +8,21 @@ conn = PG::Connection.open(ENV["DATABASE_URL"])
 table = convert_keys(conn.exec('SELECT * from accounts'))
 
 app = -> (env) do
-  filling = []
-  table.each do |line|
-    filling << "<tr>"
-   line.each do |key, val|
-      filling << "<td>#{line[key]}</td>"
-    end
-    filling << "</tr>"
-  end
-  body = "<h1> Status account</h1>
-    <table>
-        <tr>
-          <th>Type</th>
-          <th>Name</th>
-          <th>Currency</th>
-          <th>Amount</th>
-        </tr>
-        #{filling.join}
-  </table>"
-  [ 200, { "Content-Type" => "text/html" }, [body] ]
+   accounts = table.map do |line|
+     tds = line.map { |key, val| "<td>#{val}</td>" }.join
+     "<tr>#{tds}</tr>"
+   end
+   body = "<h1> Status account</h1>
+     <table>
+         <tr>
+           <th>Type</th>
+           <th>Name</th>
+           <th>Currency</th>
+           <th>Amount</th>
+         </tr>
+         #{accounts.join}
+   </table>"
+   [ 200, { "Content-Type" => "text/html" }, [body] ]
 end
 
 run app
