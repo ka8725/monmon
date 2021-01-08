@@ -2,7 +2,6 @@
 
 ## Use
 ---
-
 Run tests: `ruby -I lib test/process_test.rb`
 
 Ruby CLI: `./bin/cli`
@@ -15,7 +14,6 @@ Use to change main currency. Where main currency is global standard ISO 4217: `.
 
 ## How DATABASE_URL should be specified
 ---
-
 URI is formed as follows:
     `postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]`
 For examples:
@@ -31,3 +29,7 @@ For examples:
 ## Create DataBase
 ---
 Run this command in your terminal to create database: `psql -f commands.sql`
+
+## Run server
+---
+Run server: `rackup`
