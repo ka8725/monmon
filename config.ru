@@ -10,32 +10,6 @@ def convert_keys(table)
   table.map { |row| row.transform_keys { |key| key.to_sym rescue key } }
 end
 
-def is_digit?(value)
-  val = value.split(//)
-  val.each do |item|
-    code = item.ord
-    if 48 <= code && code <= 57 == false
-      return false
-    end
-  end
-end
-
-def validation(input)
-  flag = true
-  if not SUPPORTED_CURRENCIES.include?(input["currency"])
-    flag = false
-  end
-
-  if input["type"].length == 0  || input["name"].length == 0
-    flag = false
-  end
-
-  if not is_digit?(input["amount"])
-    flag = false
-  end
-  flag
-end  
-
 conn = PG::Connection.open(ENV["DATABASE_URL"])
 table = convert_keys(conn.exec('SELECT * from accounts'))
 
@@ -59,7 +33,12 @@ app = -> (env) do
       </table>"
       [ 200, { "Content-Type" => "text/html" }, [body] ]
     when "/accounts/new"
+      currencys = SUPPORTED_CURRENCIES.map do |i|
+        "<option value =\"#{i}\">#{i}</option>"
+      end
       body = "<form action=\"/accounts\" method=\"POST\">
+      <fieldset>
+      <center>
       <table>
           <caption><b>Create accounts</b></caption>
           <tr>
@@ -69,14 +48,20 @@ app = -> (env) do
               <th>Amount</th>
           </tr>
           <tr>
-              <td><input type=\"text\" name=\"type\" placeholder=\"Type\"></td>
-              <td><input type=\"text\" name=\"name\" placeholder=\"Name\"></td>
-              <td><input type=\"text\" name=\"currency\" placeholder=\"Currency\"></td>
-              <td><input type=\"text\" name=\"amount\" placeholder=\"Amount\"></td>
+              <td><input type=\"text\" name=\"type\" placeholder=\"Type\" required></td>
+              <td><input type=\"text\" name=\"name\" placeholder=\"Name\" required></td>
+              <td>
+                <select name =\"currency\">
+                  #{currencys.join}
+                </select>
+              </td>
+              <td><input type=\"number\" name=\"amount\" placeholder=\"Amount\" required></td>
           </tr>
       </table>
       <button>Save</button>
-      </table>      
+      </table>
+      </center>
+      </fieldset>      
       </form>"
       [ 200, { "Content-Type" => "text/html" }, [body] ]
     else
@@ -86,12 +71,8 @@ app = -> (env) do
     req = Rack::Request.new(env)
     case env["REQUEST_PATH"]
     when "/accounts"
-      if validation(req.POST)
-        conn.exec("INSERT INTO accounts(type, name, currency, amount) VALUES ('#{req.POST["type"]}', '#{req.POST["name"]}', '#{req.POST["currency"]}', '#{req.POST["amount"].to_i}')")
-        redirect
-      else
-        abort "Filling Error"
-      end
+      conn.exec("INSERT INTO accounts(type, name, currency, amount) VALUES ('#{req.POST["type"]}', '#{req.POST["name"]}', '#{req.POST["currency"]}', '#{req.POST["amount"].to_i}')")
+      redirect
       [ 200, { "Content-Type" => "text/html" }, [""] ]
     else
       [ 404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"] ]
