@@ -55,7 +55,7 @@ app = -> (env) do
                   #{currencys.join}
                 </select>
               </td>
-              <td><input type=\"number\" name=\"amount\" placeholder=\"Amount\" required></td>
+              <td><input type=\"number\" name=\"amount\" placeholder=\"Amount\" min=\"1\" required></td>
           </tr>
       </table>
       <button>Save</button>
