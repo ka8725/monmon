@@ -2,7 +2,7 @@ require 'csv'
 require 'optparse'
 require 'net/http'
 require 'json'
-require 'configuration'
+require './lib/configuration'
 
 def rates
   @rates ||= begin
