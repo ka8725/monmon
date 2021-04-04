@@ -2,10 +2,6 @@ require 'pg'
 require './lib/monmon'
 require './lib/configuration'
 
-def redirect
-  [302, {'Location' => "/"}, []]
-end 
-
 def convert_keys(table)
   table.map { |row| row.transform_keys { |key| key.to_sym rescue key } }
 end
@@ -14,7 +10,14 @@ conn = PG::Connection.open(ENV["DATABASE_URL"])
 table = convert_keys(conn.exec('SELECT * from accounts'))
 
 app = -> (env) do
-  if env["REQUEST_METHOD"] == "GET"
+if env["REQUEST_METHOD"] == "GET" && env["QUERY_STRING"] == "_method=PUT"
+  case env["REQUEST_PATH"]
+  when "/accounts/update"
+    [204, {'Location' => "/"}, [""]]
+  else
+    [404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"]]
+  end
+elsif env["REQUEST_METHOD"] == "GET"
     case env["REQUEST_PATH"]
     when "/"
       accounts = table.map do |line|
@@ -30,7 +33,11 @@ app = -> (env) do
               <th>Amount</th>
             </tr>
             #{accounts.join}
-      </table>"
+      </table>
+      <form action=\"/accounts/update\" method=\"PUT\">
+        <input type=\"hidden\" name=\"_method\" value=\"PUT\">
+        <button>Update</button>
+      </form>"
       [ 200, { "Content-Type" => "text/html" }, [body] ]
     when "/accounts/new"
       currencys = SUPPORTED_CURRENCIES.map do |i|
@@ -63,21 +70,22 @@ app = -> (env) do
       </center>
       </fieldset>      
       </form>"
-      [ 200, { "Content-Type" => "text/html" }, [body] ]
+      [200, { "Content-Type" => "text/html" }, [body]]
     else
-      [ 404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"] ]
+      [404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"]]
     end
   elsif env["REQUEST_METHOD"] == "POST"
     req = Rack::Request.new(env)
     case env["REQUEST_PATH"]
     when "/accounts"
       conn.exec("INSERT INTO accounts(type, name, currency, amount) VALUES ('#{req.POST["type"]}', '#{req.POST["name"]}', '#{req.POST["currency"]}', '#{req.POST["amount"].to_i}')")
-      redirect
-      [ 200, { "Content-Type" => "text/html" }, [""] ]
+      [201, {'Location' => "/"}, [""]]
+    when "/accounts/update"
+      [201, {'Location' => "/"}, [""]]
     else
-      [ 404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"] ]
-    end  
-  end
+      [404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"]]
+    end
+  end  
 end
 
 run app
