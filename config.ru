@@ -10,14 +10,7 @@ conn = PG::Connection.open(ENV["DATABASE_URL"])
 table = convert_keys(conn.exec('SELECT * from accounts'))
 
 app = -> (env) do
-if env["REQUEST_METHOD"] == "GET" && env["QUERY_STRING"] == "_method=PUT"
-  case env["REQUEST_PATH"]
-  when "/accounts/update"
-    [204, {'Location' => "/"}, [""]]
-  else
-    [404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"]]
-  end
-elsif env["REQUEST_METHOD"] == "GET"
+  if env["REQUEST_METHOD"] == "GET"
     case env["REQUEST_PATH"]
     when "/"
       accounts = table.map do |line|
@@ -34,9 +27,9 @@ elsif env["REQUEST_METHOD"] == "GET"
             </tr>
             #{accounts.join}
       </table>
-      <form action=\"/accounts/update\" method=\"PUT\">
+      <form action=\"/accounts/update\" method=\"POST\">
         <input type=\"hidden\" name=\"_method\" value=\"PUT\">
-        <button>Update</button>
+        <button type=\"submit\">Update</button>
       </form>"
       [ 200, { "Content-Type" => "text/html" }, [body] ]
     when "/accounts/new"
@@ -79,9 +72,11 @@ elsif env["REQUEST_METHOD"] == "GET"
     case env["REQUEST_PATH"]
     when "/accounts"
       conn.exec("INSERT INTO accounts(type, name, currency, amount) VALUES ('#{req.POST["type"]}', '#{req.POST["name"]}', '#{req.POST["currency"]}', '#{req.POST["amount"].to_i}')")
-      [201, {'Location' => "/"}, [""]]
+      [302, {'Location' => "/"}, [""]]
     when "/accounts/update"
-      [201, {'Location' => "/"}, [""]]
+      if req.POST["_method"] == "PUT" then
+        [302, {'Location' => "/"}, [""]]
+      end
     else
       [404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"]]
     end
