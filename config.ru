@@ -75,7 +75,26 @@ app = -> (env) do
       [302, {'Location' => "/"}, [""]]
     when "/accounts/update"
       if req.POST["_method"] == "PUT" then
-        [302, {'Location' => "/"}, [""]]
+        table = convert_keys(conn.exec('SELECT * from accounts'))
+        accounts = table.map do |line|
+          tds = line.map { |key, val| "<td>#{val}</td>" }.join
+          "<tr>#{tds}</tr>"
+        end
+        body = "<h1> Status account</h1>
+          <table>
+              <tr>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Currency</th>
+                <th>Amount</th>
+              </tr>
+              #{accounts.join}
+        </table>
+        <form action=\"/accounts/update\" method=\"POST\">
+          <input type=\"hidden\" name=\"_method\" value=\"PUT\">
+          <button type=\"submit\">Update</button>
+        </form>"
+        [ 200, { "Content-Type" => "text/html" }, [body] ]
       end
     else
       [404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"]]
