@@ -2,10 +2,6 @@ require 'pg'
 require './lib/monmon'
 require './lib/configuration'
 
-def redirect
-  [302, {'Location' => "/"}, []]
-end 
-
 def convert_keys(table)
   table.map { |row| row.transform_keys { |key| key.to_sym rescue key } }
 end
@@ -30,7 +26,11 @@ app = -> (env) do
               <th>Amount</th>
             </tr>
             #{accounts.join}
-      </table>"
+      </table>
+      <form action=\"/accounts/update\" method=\"POST\">
+        <input type=\"hidden\" name=\"_method\" value=\"PUT\">
+        <button type=\"submit\">Update</button>
+      </form>"
       [ 200, { "Content-Type" => "text/html" }, [body] ]
     when "/accounts/new"
       currencys = SUPPORTED_CURRENCIES.map do |i|
@@ -63,21 +63,43 @@ app = -> (env) do
       </center>
       </fieldset>      
       </form>"
-      [ 200, { "Content-Type" => "text/html" }, [body] ]
+      [200, { "Content-Type" => "text/html" }, [body]]
     else
-      [ 404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"] ]
+      [404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"]]
     end
   elsif env["REQUEST_METHOD"] == "POST"
     req = Rack::Request.new(env)
     case env["REQUEST_PATH"]
     when "/accounts"
       conn.exec("INSERT INTO accounts(type, name, currency, amount) VALUES ('#{req.POST["type"]}', '#{req.POST["name"]}', '#{req.POST["currency"]}', '#{req.POST["amount"].to_i}')")
-      redirect
-      [ 200, { "Content-Type" => "text/html" }, [""] ]
+      [302, {'Location' => "/"}, [""]]
+    when "/accounts/update"
+      if req.POST["_method"] == "PUT" then
+        table = convert_keys(conn.exec('SELECT * from accounts'))
+        accounts = table.map do |line|
+          tds = line.map { |key, val| "<td>#{val}</td>" }.join
+          "<tr>#{tds}</tr>"
+        end
+        body = "<h1> Status account</h1>
+          <table>
+              <tr>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Currency</th>
+                <th>Amount</th>
+              </tr>
+              #{accounts.join}
+        </table>
+        <form action=\"/accounts/update\" method=\"POST\">
+          <input type=\"hidden\" name=\"_method\" value=\"PUT\">
+          <button type=\"submit\">Update</button>
+        </form>"
+        [ 200, { "Content-Type" => "text/html" }, [body] ]
+      end
     else
-      [ 404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"] ]
-    end  
-  end
+      [404, { "Content-Type" => "text/html" }, ["<h1>404 Not Found</h1>"]]
+    end
+  end  
 end
 
 run app
